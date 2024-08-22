@@ -1,0 +1,44 @@
+stages:
+  - deploy
+
+deploy_prod:
+  stage: deploy
+  environment:
+    name: production
+  tags:
+    - vps-runner
+  only:
+    - main
+  script:
+    - echo "🚀 Desplegando en Servidor de Producción"
+    - echo "La API_KEY es $APPID"
+    - export NVM_DIR="$HOME/.nvm"
+    - '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
+    # - nvm use 18  # Usa la versión instalada de Node.js
+    - export PATH="$NVM_DIR/versions/node/v18.16.0/bin:$PATH"
+    - npm install --production
+    - npm i -g pm2
+    # - pm2 reload app-prod --update-env || pm2 start npm --name "app-prod" -- start --update-env
+    - pm2 start ecosystem.config.cjs --only app-prod --update-env
+    - pm2 save
+
+deploy_dev:
+  stage: deploy
+  environment:
+    name: development
+  tags:
+    - dev-runner
+  only:
+    - dev
+  script:
+    - echo "🚀 Desplegando en Servidor de Desarrollo"
+    - echo "La API_KEY es $APPID"
+    - export NVM_DIR="$HOME/.nvm"
+    - '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
+    # - nvm use 18  # Usa la versión instalada de Node.js
+    - export PATH="$NVM_DIR/versions/node/v18.16.0/bin:$PATH"
+    - npm install
+    - npm i -g pm2
+    # - pm2 reload app-dev --update-env || pm2 start npm --name "app-dev" -- start --update-env
+    - pm2 reload ecosystem.config.cjs --only app-dev --update-env || pm2 start ecosystem.config.cjs --only app-dev --update-env
+    - pm2 save
