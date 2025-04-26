@@ -4,13 +4,13 @@ import morgan from "morgan";
 import routes from "./routes/index.js";
 
 import config from "./config.js";
-import {fileURLToPath} from "url";
+import { fileURLToPath } from "url";
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Settings
-app.set("port", config.PORT);
+app.set("port", process.env.PORT || 5000);
 app.set("views", path.resolve(__dirname, "views"));
 app.set("view engine", "ejs");
 
@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // global variables
 app.use((req, res, next) => {
-  console.log(config.APPID)
+  console.log(config.APPID);
   app.locals.APPID = config.APPID;
   next();
 });
